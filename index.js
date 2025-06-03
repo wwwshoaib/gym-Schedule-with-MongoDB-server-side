@@ -39,7 +39,12 @@ async function run() {
         res.send(result);
       
     });
-    app.get("/schedule", async (req, res) => {
+    app.get("/schedule", async(req, res) => {
+      const result = await gymScheduleDB.find().toArray();
+      res.send(result);
+    })
+   /**
+    *  app.get("/schedule", async (req, res) => {
       const { searchParams } = req.query;
 
       console.log(searchParams);
@@ -52,23 +57,72 @@ async function run() {
       const result = await gymSchedule.find(option).toArray();
       res.send(result);
     });
-    app.delete("/schedule/:id", async (req, res) => {
+    */
+    /**
+     * app.delete("/schedule/:id", async (req, res) => {
       const { id } = req.params;
       const result = await gymSchedule.deleteOne({ _id: new ObjectId(id) });
       res.send(result);
     });
+     */
 
+    //Delete Operation
+    app.delete("/schedule/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await gymScheduleDB.deleteOne(query);
+      res.send(result);
+    }) 
+
+     app.get("/schedule/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await gymScheduleDB.findOne(query);
+      res.send(result);
+    })
+
+    //UPDATE operation
     app.get("/schedule/:id", async (req, res) => {
       const { id } = req.params;
-
       console.log(id);
-
       const filter = { _id: new ObjectId(id) };
-      const result = await gymSchedule.findOne(filter);
+      const result = await gymScheduleDB.findOne(filter);
       res.send(result);
     });
 
-    app.patch("/schedule/:id", async (req, res) => {
+    //using PATCH method for the update
+    app.patch("/schedule/:id", async(req, res) => {
+      const id = req.params.id;
+      const data = req.body;
+     const query = { _id: new ObjectId(id) };
+     const update = {
+      $set: {
+        title: data?.title,
+        day: data?.day,
+        date: data?.date,
+        hour: data?.hour
+      }
+     }
+     const result = await gymScheduleDB.updateOne(query, update);
+     res.send(result);
+    })
+
+
+     //using PATCH method for Done mark and Alldone mark
+    app.patch("/status/:id", async(req, res) => {
+      const id = req.params.id;
+     const query = { _id: new ObjectId(id) };
+     const update = {
+      $set: {
+        isCompleted: true,
+      }
+     }
+     const result = await gymScheduleDB.updateOne(query, update);
+     res.send(result);
+    })
+
+    /**
+     * app.patch("/schedule/:id", async (req, res) => {
       const { id } = req.params;
 
       console.log(id);
@@ -84,6 +138,7 @@ async function run() {
       });
       res.send(result);
     });
+     */
     app.patch("/status/:id", async (req, res) => {
       const { id } = req.params;
       const data = req.body;
