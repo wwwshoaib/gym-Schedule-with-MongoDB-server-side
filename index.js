@@ -25,7 +25,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    console.log("connected with database atlas!");
+    console.log("connected with MongoDB atlas database!");
 
     const gymScheduleDB = client.db("gym-schedule").collection("schedule");
 
@@ -34,30 +34,30 @@ async function run() {
 
       // console.log(Object.keys(scheduleData));
 
-     
-        const result = await gymScheduleDB.insertOne(scheduleData);
-        res.send(result);
-      
+
+      const result = await gymScheduleDB.insertOne(scheduleData);
+      res.send(result);
+
     });
-    app.get("/schedule", async(req, res) => {
+    app.get("/schedule", async (req, res) => {
       const result = await gymScheduleDB.find().toArray();
       res.send(result);
     })
-   /**
-    *  app.get("/schedule", async (req, res) => {
-      const { searchParams } = req.query;
-
-      console.log(searchParams);
-
-      let option = {};
-
-      if (searchParams) {
-        option = { title: { $regex: searchParams, $options: "i" } };
-      }
-      const result = await gymSchedule.find(option).toArray();
-      res.send(result);
-    });
-    */
+    /**
+     *  app.get("/schedule", async (req, res) => {
+       const { searchParams } = req.query;
+ 
+       console.log(searchParams);
+ 
+       let option = {};
+ 
+       if (searchParams) {
+         option = { title: { $regex: searchParams, $options: "i" } };
+       }
+       const result = await gymSchedule.find(option).toArray();
+       res.send(result);
+     });
+     */
     /**
      * app.delete("/schedule/:id", async (req, res) => {
       const { id } = req.params;
@@ -69,14 +69,14 @@ async function run() {
     //Delete Operation
     app.delete("/schedule/:id", async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await gymScheduleDB.deleteOne(query);
       res.send(result);
-    }) 
+    })
 
-     app.get("/schedule/:id", async (req, res) => {
+    app.get("/schedule/:id", async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await gymScheduleDB.findOne(query);
       res.send(result);
     })
@@ -91,34 +91,34 @@ async function run() {
     });
 
     //using PATCH method for the update
-    app.patch("/schedule/:id", async(req, res) => {
+    app.patch("/schedule/:id", async (req, res) => {
       const id = req.params.id;
       const data = req.body;
-     const query = { _id: new ObjectId(id) };
-     const update = {
-      $set: {
-        title: data?.title,
-        day: data?.day,
-        date: data?.date,
-        hour: data?.hour
+      const query = { _id: new ObjectId(id) };
+      const update = {
+        $set: {
+          title: data?.title,
+          day: data?.day,
+          date: data?.date,
+          hour: data?.hour
+        }
       }
-     }
-     const result = await gymScheduleDB.updateOne(query, update);
-     res.send(result);
+      const result = await gymScheduleDB.updateOne(query, update);
+      res.send(result);
     })
 
 
-     //using PATCH method for Done mark and Alldone mark
-    app.patch("/status/:id", async(req, res) => {
+    //using PATCH method for Done mark and Alldone mark
+    app.patch("/status/:id", async (req, res) => {
       const id = req.params.id;
-     const query = { _id: new ObjectId(id) };
-     const update = {
-      $set: {
-        isCompleted: true,
+      const query = { _id: new ObjectId(id) };
+      const update = {
+        $set: {
+          isCompleted: true,
+        }
       }
-     }
-     const result = await gymScheduleDB.updateOne(query, update);
-     res.send(result);
+      const result = await gymScheduleDB.updateOne(query, update);
+      res.send(result);
     })
 
     /**
@@ -153,6 +153,20 @@ async function run() {
       });
       res.send(result);
     });
+
+    //for the implementation search
+    app.get("/search", async (req, res) => {
+      const { searchParams } = req.query;
+      let option = {};
+
+      if (searchParams && searchParams.trim() !== "") {
+        option = { title: { $regex: searchParams.trim(), $options: "i" } };
+      }
+
+      const result = await gymScheduleDB.find(option).toArray();
+      res.send(result);
+    });
+
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
